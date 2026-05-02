@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load commerce_extras %}
+{% block title %}Admin orders | Lux Gems{% endblock %}
+{% block content %}
+<section class="lx-section">
+  <h1 class="lx-section-title">Orders</h1>
+  <form method="get" class="lx-toolbar" style="margin-bottom:1.5rem;">
+    <label>Status
+      <select class="lx-select" name="status">
+        <option value="">All</option>
+        {% for val,label in statuses %}
+          <option value="{{ val }}" {% if request.GET.status == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button type="submit" class="lx-btn lx-btn-primary">Filter</button>
+  </form>
+  <div class="lx-table-wrap">
+    <table class="lx-table">
+      <thead>
+        <tr><th>ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for o in orders %}
+          <tr>
+            <td><a href="{% url 'orders:detail' o.pk %}">#{{ o.pk }}</a></td>
+            <td>{{ o.user.email|default:o.user.username }}</td>
+            <td>{{ o.total|pkr }}</td>
+            <td>{{ o.get_status_display }}</td>
+            <td class="lx-meta">{{ o.created_at|date:"M j, Y H:i" }}</td>
+            <td><a href="{% url 'orders:admin_order_status' o.pk %}">Update status</a></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="lx-meta">No orders.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% load static %}
+{% load account_extras %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Lux Gems{% endblock %}</title>
+  <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
+  <link rel="preconnect" href="https://images.pexels.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/luxgems.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <header class="lx-nav">
+    <div class="lx-container lx-nav-stack">
+      <div class="lx-nav-inner">
+        <a href="{% url 'catalog:home' %}" class="lx-brand">Lux <span>Gems</span></a>
+        <nav class="lx-links">
+          <a href="{% url 'catalog:home' %}">Home</a>
+          <a href="{% url 'catalog:showroom' %}">Showroom</a>
+          {% if user.is_authenticated %}
+            {% user_is_admin user as nav_admin %}
+            <a href="{% url 'cart:cart' %}">Bag{% if cart_item_count %} <span class="lx-badge">{{ cart_item_count }}</span>{% endif %}</a>
+            {% if nav_admin %}
+              <a href="{% url 'accounts:admin_dashboard' %}" target="_blank" rel="noopener noreferrer">Admin</a>
+              <a href="{% url 'catalog:admin_product_list' %}" target="_blank" rel="noopener noreferrer">Products</a>
+              <a href="{% url 'orders:admin_order_list' %}" target="_blank" rel="noopener noreferrer">Orders</a>
+              <a href="{% url 'admin:index' %}" target="_blank" rel="noopener noreferrer">Django admin</a>
+            {% else %}
+              <a href="{% url 'accounts:user_dashboard' %}">Account</a>
+              <a href="{% url 'orders:list' %}">My orders</a>
+            {% endif %}
+            <form action="{% url 'accounts:logout' %}" method="post" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="lx-btn lx-btn-ghost" style="padding:0.4rem 0.75rem;font-size:0.72rem;">Logout</button>
+            </form>
+          {% else %}
+            <a href="{% url 'accounts:login' %}">Login</a>
+            <a href="{% url 'accounts:register' %}">Register</a>
+          {% endif %}
+        </nav>
+      </div>
+      <form class="lx-nav-search" method="get" action="{% url 'catalog:showroom' %}" role="search" aria-label="Search showroom">
+        <input class="lx-input lx-nav-search__q" type="search" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Search by name or gemstone…" autocomplete="off">
+        <input class="lx-input lx-nav-search__p" type="number" name="min_price" min="0" step="1" value="{{ request.GET.min_price|default:'' }}" placeholder="Min Rs" inputmode="numeric" aria-label="Minimum price in PKR">
+        <input class="lx-input lx-nav-search__p" type="number" name="max_price" min="0" step="1" value="{{ request.GET.max_price|default:'' }}" placeholder="Max Rs" inputmode="numeric" aria-label="Maximum price in PKR">
+        <button type="submit" class="lx-btn lx-btn-primary lx-nav-search__btn">Search</button>
+      </form>
+    </div>
+  </header>
+  <main class="lx-container">
+    {% if messages %}
+      <ul class="lx-messages">
+        {% for message in messages %}
+          <li class="{% if message.tags == 'success' %}lx-msg-success{% elif message.tags == 'error' %}lx-msg-error{% elif message.tags == 'warning' %}lx-msg-warning{% else %}lx-msg-info{% endif %}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="lx-footer lx-container">
+    <nav class="lx-footer-links" aria-label="Site links">
+      <a href="{% url 'catalog:home' %}">Home</a>
+      <a href="{% url 'catalog:showroom' %}">Showroom</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'cart:cart' %}">Bag</a>
+        <a href="{% url 'orders:checkout' %}">Checkout</a>
+        {% user_is_admin user as foot_admin %}
+        {% if foot_admin %}
+          <a href="{% url 'accounts:admin_dashboard' %}">Admin</a>
+          <a href="{% url 'catalog:admin_product_list' %}">Manage products</a>
+          <a href="{% url 'orders:admin_order_list' %}">Manage orders</a>
+        {% else %}
+          <a href="{% url 'orders:list' %}">My orders</a>
+          <a href="{% url 'accounts:user_dashboard' %}">Account</a>
+        {% endif %}
+      {% else %}
+        <a href="{% url 'accounts:login' %}">Login</a>
+        <a href="{% url 'accounts:register' %}">Register</a>
+      {% endif %}
+      <a href="https://wa.me/923469460341" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+    </nav>
+    <p class="lx-footer-note">Lux Gems — fine jewellery in Pakistan. Prices in <strong>PKR</strong>; checkout is <strong>COD</strong> unless otherwise stated.</p>
+    <p class="lx-footer-note">Message us on WhatsApp: <a href="https://wa.me/923469460341"><strong>0346 9460341</strong></a></p>
+  </footer>
+  <a class="lx-wa-float" href="https://wa.me/923469460341" target="_blank" rel="noopener noreferrer" title="WhatsApp 0346 9460341" aria-label="Open WhatsApp chat with Lux Gems">
+    <span class="lx-wa-float__icon" aria-hidden="true">
+      <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M16.04 3C9.42 3 4 8.24 4 14.64c0 2.42.7 4.7 1.9 6.66L4 29l7.96-2.08a11.7 11.7 0 0 0 4.08.72h.02C22.66 27.64 28 22.4 28 16S22.66 3 16.04 3Zm.02 21.2h-.02a9.5 9.5 0 0 1-4.84-1.32l-.34-.2-4.5 1.18 1.2-4.38-.22-.36a9.44 9.44 0 0 1-1.46-5.08c0-5.22 4.42-9.46 9.86-9.46 5.44 0 9.86 4.24 9.86 9.46s-4.42 9.46-9.86 9.46Zm5.46-6.72c-.3-.14-1.76-.86-2.04-.96-.28-.1-.48-.14-.68.14-.2.28-.78.96-.96 1.16-.18.2-.36.22-.66.08-.3-.14-1.26-.46-2.4-1.48-.88-.78-1.48-1.74-1.66-2.04-.18-.3-.02-.46.14-.6.14-.14.3-.36.46-.54.14-.18.2-.3.3-.5.1-.2.06-.36-.02-.5-.08-.14-.68-1.64-.94-2.24-.24-.58-.5-.5-.68-.5h-.58c-.2 0-.5.08-.76.36-.26.28-1 1-1 2.44s1.02 2.82 1.16 3.02c.14.2 2 3.06 4.84 4.28.68.3 1.2.48 1.62.6.68.22 1.3.2 1.78.12.54-.08 1.76-.72 2-1.42.26-.7.26-1.3.18-1.42-.08-.12-.28-.2-.58-.34Z"/></svg>
+    </span>
+    <span class="lx-wa-float__label">WhatsApp</span>
+  </a>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

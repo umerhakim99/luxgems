@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Delete product | Lux Gems{% endblock %}
+{% block content %}
+<section class="lx-section">
+  <h1 class="lx-section-title">Delete product</h1>
+  <p class="lx-meta">Remove <strong>{{ product.name }}</strong>? This cannot be undone.</p>
+  <form method="post" class="lx-stack-sm" style="margin-top:1.5rem;">
+    {% csrf_token %}
+    <button type="submit" class="lx-btn lx-btn-primary" style="border-color:#a44;">Delete</button>
+    <a class="lx-btn lx-btn-ghost" href="{% url 'catalog:admin_product_list' %}">Cancel</a>
+  </form>
+</section>
+{% endblock %}

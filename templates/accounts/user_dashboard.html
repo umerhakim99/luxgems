@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load commerce_extras %}
+{% block title %}Your account | Lux Gems{% endblock %}
+{% block content %}
+<section class="lx-section">
+  <h1 class="lx-section-title">Your showroom account</h1>
+  <p class="lx-meta">Signed in as <strong>{{ user.email|default:user.username }}</strong> · Role: <strong>{{ user.profile.get_role_display }}</strong></p>
+  <div class="lx-stack-sm" style="margin:2rem 0;">
+    <a class="lx-btn lx-btn-primary" href="{% url 'catalog:showroom' %}">Browse showroom</a>
+    <a class="lx-btn lx-btn-ghost" href="{% url 'orders:list' %}">Order history</a>
+    <a class="lx-btn lx-btn-ghost" href="{% url 'cart:cart' %}">Your bag</a>
+  </div>
+  <h2 class="lx-section-title" style="font-size:1.35rem;">Recent orders</h2>
+  {% if orders %}
+    <div class="lx-table-wrap">
+      <table class="lx-table">
+        <thead><tr><th>Order</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>
+          {% for o in orders %}
+            <tr>
+              <td><a href="{% url 'orders:detail' o.pk %}">#{{ o.pk }}</a></td>
+              <td>{{ o.total|pkr }}</td>
+              <td><span class="lx-pill">{{ o.get_status_display }}</span></td>
+              <td class="lx-meta">{{ o.created_at|date:"M j, Y" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="lx-meta">No orders yet. Explore the <a href="{% url 'catalog:showroom' %}">showroom</a>.</p>
+  {% endif %}
+</section>
+{% endblock %}

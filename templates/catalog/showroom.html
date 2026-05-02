@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load commerce_extras %}
+{% block title %}Showroom | Lux Gems{% endblock %}
+{% block content %}
+<section class="lx-hero" style="padding-top:2.5rem;padding-bottom:1rem;">
+  <h1>Fine jewelry collection</h1>
+  <p>Prices in <strong>PKR</strong>. Search, filter, and sort to find your piece.</p>
+</section>
+<section class="lx-section" style="padding-top:0;">
+  <form class="lx-toolbar" method="get" action="{% url 'catalog:showroom' %}">
+    <label>Search
+      <input class="lx-input" type="search" name="q" value="{{ request.GET.q }}" placeholder="Name, gemstone…">
+    </label>
+    <label>Category
+      <select class="lx-select" name="category">
+        <option value="">All</option>
+        {% for c in categories %}
+          <option value="{{ c.pk }}" {% if request.GET.category == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Material
+      <select class="lx-select" name="material">
+        <option value="">All</option>
+        {% for val,label in materials %}
+          <option value="{{ val }}" {% if request.GET.material == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Min (Rs.)
+      <input class="lx-input" type="number" step="1" name="min_price" value="{{ request.GET.min_price }}" placeholder="e.g. 50000">
+    </label>
+    <label>Max (Rs.)
+      <input class="lx-input" type="number" step="1" name="max_price" value="{{ request.GET.max_price }}" placeholder="e.g. 500000">
+    </label>
+    <label>Sort
+      <select class="lx-select" name="sort">
+        <option value="newest" {% if current_sort == "newest" %}selected{% endif %}>Newest</option>
+        <option value="price_low" {% if current_sort == "price_low" %}selected{% endif %}>Price: Low to High</option>
+        <option value="price_high" {% if current_sort == "price_high" %}selected{% endif %}>Price: High to Low</option>
+      </select>
+    </label>
+    <button type="submit" class="lx-btn lx-btn-primary" style="align-self:flex-end;">Apply</button>
+  </form>
+  <p class="lx-meta" style="margin-bottom:1.5rem;">Showing {{ page_obj.paginator.count }} piece{{ page_obj.paginator.count|pluralize }}</p>
+  <div class="lx-grid">
+    {% for product in page_obj %}
+      <article class="lx-card">
+        <a href="{{ product.get_absolute_url }}" class="lx-card-media">
+          {% if product.display_image_url %}
+            <img src="{{ product.display_image_url }}" alt="{{ product.name }}" loading="lazy">
+          {% else %}
+            <div style="padding:2rem;color:var(--lux-muted);font-size:0.85rem;text-align:center;">No image</div>
+          {% endif %}
+        </a>
+        <div class="lx-card-body">
+          <h3><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
+          <p class="lx-meta">{{ product.short_description }}</p>
+          <p class="lx-price">{{ product.price|pkr }}</p>
+          {% star_rating product.rating_average product.rating_count %}
+          <a class="lx-btn lx-btn-ghost" style="margin-top:auto;align-self:flex-start;" href="{{ product.get_absolute_url }}">View details</a>
+        </div>
+      </article>
+    {% empty %}
+      <p class="lx-meta">No products match your filters.</p>
+    {% endfor %}
+  </div>
+  {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="lx-pagination" aria-label="Pagination">
+      {% if page_obj.has_previous %}
+        <a href="?{% for k,v in request.GET.items %}{% if k != 'page' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">← Prev</a>
+      {% endif %}
+      <span class="active">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?{% for k,v in request.GET.items %}{% if k != 'page' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">Next →</a>
+      {% endif %}
+    </nav>
+  {% endif %}
+</section>
+{% endblock %}

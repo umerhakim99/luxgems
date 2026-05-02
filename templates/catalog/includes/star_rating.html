@@ -1,0 +1,6 @@
+<div class="lx-stars" title="{{ avg }} out of 5 stars">
+  {% for _ in full_range %}<span class="lx-stars__on" aria-hidden="true">★</span>{% endfor %}
+  {% if half %}<span class="lx-stars__half" aria-hidden="true">★</span>{% endif %}
+  {% for _ in empty_range %}<span class="lx-stars__off" aria-hidden="true">☆</span>{% endfor %}
+  {% if count %}<span class="lx-stars__meta">{{ avg }} · {{ count }} review{{ count|pluralize }}</span>{% endif %}
+</div>

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load commerce_extras %}
+{% block title %}{{ product.name }} | Lux Gems{% endblock %}
+{% block content %}
+<section class="lx-section">
+  <div class="lx-split">
+    <div>
+      <div class="lx-card lx-product-gallery" style="border-radius:6px;">
+        <div class="lx-card-media lx-product-gallery__main" style="aspect-ratio:1;">
+          {% if gallery_urls.0 %}
+            <img id="lx-gallery-main" src="{{ gallery_urls.0 }}" alt="{{ product.name }}" decoding="async">
+          {% else %}
+            <div style="padding:3rem;color:var(--lux-muted);">No image uploaded</div>
+          {% endif %}
+        </div>
+        {% if gallery_urls|length > 1 %}
+          <div class="lx-product-gallery__thumbs" role="tablist" aria-label="Product photos">
+            {% for url in gallery_urls %}
+              <button type="button" class="lx-product-gallery__thumb{% if forloop.first %} is-active{% endif %}" data-src="{{ url }}" aria-label="View photo {{ forloop.counter }}">
+                <img src="{{ url }}" alt="" loading="lazy" width="96" height="96">
+              </button>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    <div>
+      <p class="lx-pill">{{ product.category.name }} · {{ product.get_material_display }}</p>
+      <h1 class="lx-section-title" style="margin-top:0.75rem;">{{ product.name }}</h1>
+      <p class="lx-price" style="font-size:1.5rem;margin-bottom:0.5rem;">{{ product.price|pkr }}</p>
+      {% star_rating product.rating_average product.rating_count %}
+      {% if product.gemstone %}
+        <p class="lx-meta">Gemstone: {{ product.gemstone }}</p>
+      {% endif %}
+      <p class="lx-meta">In stock: {{ product.stock }} unit{{ product.stock|pluralize }}</p>
+      <div style="margin:1.5rem 0;color:var(--lux-muted);line-height:1.7;">
+        {{ product.description|linebreaks }}
+      </div>
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'cart:add' product.id %}" class="lx-form-stack" style="max-width:280px;">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{% url 'orders:checkout' %}">
+          <label>Quantity
+            <input class="lx-input" type="number" name="quantity" value="1" min="1" max="{{ product.stock }}">
+          </label>
+          <button type="submit" class="lx-btn lx-btn-primary" {% if product.stock == 0 %}disabled{% endif %}>Add to bag</button>
+        </form>
+      {% else %}
+        <p class="lx-meta"><a href="{% url 'accounts:login' %}?next={{ request.path|urlencode }}">Sign in</a> to add this piece to your bag.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if reviews %}
+    <h2 class="lx-section-title" style="margin-top:2.5rem;font-size:1.35rem;">Customer ratings</h2>
+    <ul class="lx-meta" style="list-style:none;padding:0;max-width:640px;">
+      {% for r in reviews %}
+        <li style="margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--lux-border);">
+          <strong>{% if r.user.get_full_name %}{{ r.user.get_full_name }}{% else %}{{ r.user.email|default:r.user.username }}{% endif %}</strong> — {% star_rating r.rating %}
+          {% if r.comment %}<div style="margin-top:0.35rem;">{{ r.comment }}</div>{% endif %}
+          <div style="font-size:0.8rem;opacity:0.85;margin-top:0.25rem;">{{ r.created_at|date:"M j, Y" }}</div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if user.is_authenticated and review_form %}
+    <h2 class="lx-section-title" style="margin-top:2rem;font-size:1.25rem;">Rate this piece</h2>
+    <form method="post" class="lx-form-stack" style="max-width:480px;">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="submit_review">
+      {% for field in review_form %}
+        <label>{{ field.label }}{% if field.errors %}<span style="color:#f5a8a8;">{{ field.errors }}</span>{% endif %}{{ field }}</label>
+      {% endfor %}
+      <button type="submit" class="lx-btn lx-btn-primary">Submit rating</button>
+    </form>
+  {% elif user.is_authenticated and user_review %}
+    <p class="lx-meta" style="margin-top:2rem;">You rated this piece {{ user_review.rating }} star{{ user_review.rating|pluralize }}.</p>
+  {% endif %}
+
+  {% if related %}
+    <h2 class="lx-section-title" style="margin-top:3rem;">You may also like</h2>
+    <div class="lx-grid">
+      {% for p in related %}
+        <article class="lx-card">
+          <a href="{{ p.get_absolute_url }}" class="lx-card-media">
+            {% if p.display_image_url %}<img src="{{ p.display_image_url }}" alt="{{ p.name }}" loading="lazy">{% endif %}
+          </a>
+          <div class="lx-card-body">
+            <h3><a href="{{ p.get_absolute_url }}">{{ p.name }}</a></h3>
+            <p class="lx-price">{{ p.price|pkr }}</p>
+            {% star_rating p.rating_average p.rating_count %}
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
+{% block extra_js %}
+{% if gallery_urls|length > 1 %}
+<script>
+(function () {
+  var main = document.getElementById('lx-gallery-main');
+  if (!main) return;
+  document.querySelectorAll('.lx-product-gallery__thumb').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var src = btn.getAttribute('data-src');
+      if (src) main.src = src;
+      document.querySelectorAll('.lx-product-gallery__thumb').forEach(function (b) { b.classList.remove('is-active'); });
+      btn.classList.add('is-active');
+    });
+  });
+})();
+</script>
+{% endif %}
+{% endblock %}

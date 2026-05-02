@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load commerce_extras %}
+{% block title %}Admin dashboard | Lux Gems{% endblock %}
+{% block content %}
+<section class="lx-section">
+  <h1 class="lx-section-title">Administration</h1>
+  <p class="lx-meta">Overview for Lux Gems operations. As an admin you can manage the catalogue (add, edit, delete products, change photos and gallery images) and update every order’s status (pending through delivered) from <strong>Manage orders</strong> or Django admin.</p>
+  <div class="lx-grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr));margin:2rem 0;">
+    <div class="lx-card" style="padding:1.25rem;">
+      <p class="lx-meta" style="margin:0;">Active products</p>
+      <p class="lx-price" style="font-size:1.75rem;margin:0;">{{ stats.product_count }}</p>
+    </div>
+    <div class="lx-card" style="padding:1.25rem;">
+      <p class="lx-meta" style="margin:0;">All orders</p>
+      <p class="lx-price" style="font-size:1.75rem;margin:0;">{{ stats.order_count }}</p>
+    </div>
+    <div class="lx-card" style="padding:1.25rem;">
+      <p class="lx-meta" style="margin:0;">Delivered revenue</p>
+      <p class="lx-price" style="font-size:1.75rem;margin:0;">{{ stats.revenue|pkr }}</p>
+    </div>
+    <div class="lx-card" style="padding:1.25rem;">
+      <p class="lx-meta" style="margin:0;">Open pipeline</p>
+      <p class="lx-price" style="font-size:1.75rem;margin:0;">{{ stats.pending_orders }}</p>
+    </div>
+  </div>
+  <div class="lx-stack-sm" style="margin-bottom:2rem;">
+    <a class="lx-btn lx-btn-primary" href="{% url 'catalog:admin_product_list' %}">Manage products</a>
+    <a class="lx-btn lx-btn-ghost" href="{% url 'orders:admin_order_list' %}">Manage orders</a>
+  </div>
+  <h2 class="lx-section-title" style="font-size:1.35rem;">Recent orders</h2>
+  <div class="lx-table-wrap">
+    <table class="lx-table">
+      <thead>
+        <tr><th>ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for o in recent_orders %}
+          <tr>
+            <td>#{{ o.pk }}</td>
+            <td>{{ o.user.email|default:o.user.username }}</td>
+            <td>{{ o.total|pkr }}</td>
+            <td>{{ o.get_status_display }}</td>
+            <td class="lx-meta">{{ o.created_at|date:"M j, Y H:i" }}</td>
+            <td><a href="{% url 'orders:admin_order_status' o.pk %}">Update</a></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="lx-meta">No orders yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} | Lux Gems{% endblock %}
+{% block content %}
+<section class="lx-section">
+  <h1 class="lx-section-title">{{ title }}</h1>
+  <p class="lx-meta" style="max-width:560px;">Main photo uses <strong>Image URL</strong> or <strong>Image</strong> above. Add up to 8 extra angles below (URL or upload per row).</p>
+  <form method="post" enctype="multipart/form-data" class="lx-form-stack" style="max-width:720px;">
+    {% csrf_token %}
+    {% for field in form %}
+      <label>{{ field.label }}
+        {% if field.errors %}<span style="color:#f5a8a8;">{{ field.errors }}</span>{% endif %}
+        {{ field }}
+      </label>
+      {% if field.name == 'image' and product and product.image %}
+        <p class="lx-meta">Current file: <a href="{{ product.image.url }}" target="_blank" rel="noopener">open</a></p>
+      {% endif %}
+      {% if field.name == 'image_url' and product and product.image_url %}
+        <p class="lx-meta">Web preview: <a href="{{ product.image_url }}" target="_blank" rel="noopener noreferrer">open URL</a></p>
+      {% endif %}
+    {% endfor %}
+
+    <h2 class="lx-section-title" style="font-size:1.15rem;margin-top:1.5rem;">Gallery (extra angles)</h2>
+    {{ formset.management_form }}
+    {% if formset.non_form_errors %}
+      <ul class="lx-messages">{% for e in formset.non_form_errors %}<li class="lx-msg-error">{{ e }}</li>{% endfor %}</ul>
+    {% endif %}
+    {% for f in formset %}
+      <fieldset class="lx-gallery-form-row" style="border:1px solid var(--lux-border);border-radius:4px;padding:1rem;margin-bottom:0.75rem;">
+        {% for field in f.visible_fields %}
+          <label style="margin-bottom:0.65rem;">{{ field.label }}{% if field.errors %}<span style="color:#f5a8a8;">{{ field.errors }}</span>{% endif %}{{ field }}</label>
+        {% endfor %}
+        {% for h in f.hidden_fields %}{{ h }}{% endfor %}
+      </fieldset>
+    {% endfor %}
+
+    <div class="lx-stack-sm" style="margin-top:0.5rem;">
+      <button type="submit" class="lx-btn lx-btn-primary">Save</button>
+      <a class="lx-btn lx-btn-ghost" href="{% url 'catalog:admin_product_list' %}">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

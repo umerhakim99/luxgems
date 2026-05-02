@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Register | Lux Gems{% endblock %}
+{% block content %}
+<section class="lx-section" style="max-width:720px;">
+  <h1 class="lx-section-title">Create your account</h1>
+  <p class="lx-meta">All fields are required for delivery (Pakistan only). Province, city, and postal code must match — e.g. Lahore cannot be paired with a KPK postal prefix.</p>
+  <p class="lx-meta">You will register as a <strong>customer</strong> and sign in with your <strong>email</strong> and password. Shop manager accounts (admin) are created separately in the Django admin panel.</p>
+  <form method="post" class="lx-form-stack">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <ul class="lx-messages">{% for e in form.non_field_errors %}<li class="lx-msg-error">{{ e }}</li>{% endfor %}</ul>
+    {% endif %}
+    {% for field in form %}
+      <label>{{ field.label }}{% if field.errors %}<span style="color:#f5a8a8;">{{ field.errors }}</span>{% endif %}{{ field }}</label>
+    {% endfor %}
+    <button type="submit" class="lx-btn lx-btn-primary">Register</button>
+  </form>
+  <p class="lx-meta" style="margin-top:1.5rem;"><a href="{% url 'accounts:login' %}">Already have an account?</a></p>
+</section>
+{% endblock %}

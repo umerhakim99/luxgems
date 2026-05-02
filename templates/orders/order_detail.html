@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load commerce_extras %}
+{% block title %}Order #{{ order.pk }} | Lux Gems{% endblock %}
+{% block content %}
+<section class="lx-section">
+  <h1 class="lx-section-title">Order #{{ order.pk }}</h1>
+  <p class="lx-meta">Status: <span class="lx-pill">{{ order.get_status_display }}</span> · {{ order.created_at|date:"M j, Y H:i" }}</p>
+  <p class="lx-meta">Payment: <strong>{% if order.payment_method == "cod" %}Cash on delivery (COD){% else %}{{ order.payment_method }}{% endif %}</strong></p>
+  <h2 class="lx-section-title" style="font-size:1.2rem;margin-top:2rem;">Items</h2>
+  <div class="lx-table-wrap">
+    <table class="lx-table">
+      <thead><tr><th>Product</th><th>Unit</th><th>Qty</th><th>Line</th></tr></thead>
+      <tbody>
+        {% for line in order.items.all %}
+          <tr>
+            <td>{{ line.product.name }}</td>
+            <td>{{ line.unit_price|pkr }}</td>
+            <td>{{ line.quantity }}</td>
+            <td>{{ line.line_total|pkr }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="lx-price" style="margin-top:1rem;">Total: {{ order.total|pkr }}</p>
+  <h2 class="lx-section-title" style="font-size:1.2rem;margin-top:2rem;">Shipping</h2>
+  <p class="lx-meta">{{ order.shipping_name }}<br>{{ order.shipping_email }}<br>{{ order.shipping_phone }}<br>{{ order.shipping_address|linebreaksbr }}</p>
+  {% if order.notes %}
+    <p class="lx-meta"><strong>Notes:</strong> {{ order.notes }}</p>
+  {% endif %}
+  <a class="lx-btn lx-btn-ghost" style="margin-top:1.5rem;" href="{% url 'catalog:showroom' %}">Back to showroom</a>
+</section>
+{% endblock %}

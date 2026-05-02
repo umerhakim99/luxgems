@@ -1,0 +1,37 @@
+Storefront images load over HTTPS from third-party CDNs (no bundled JPEGs required).
+
+Licenses
+- Unsplash: https://unsplash.com/license
+- Pexels: https://www.pexels.com/license/
+
+Canonical URLs (also defined in catalog/web_images.py)
+----------------------------------------------------------------
+HERO (home page)
+
+1) Full-bleed hero — gold rings on dark
+   https://images.unsplash.com/photo-1758995115437-7547c7e6500d?auto=format&fit=crop&w=1920&q=82
+   Photo page: https://unsplash.com/photos/KnmF5p2o54Y
+
+2) Editorial strip — gemstone ring still life
+   https://images.unsplash.com/photo-1603561591411-07134e71a2a9?auto=format&fit=crop&w=1600&q=82
+   Photo page: https://unsplash.com/photos/yEJwDxAoHc0
+
+DEMO PRODUCTS (seed_demo)
+
+3) diamond-necklace — Pexels 1018137
+   https://images.pexels.com/photos/1018137/pexels-photo-1018137.jpeg?auto=compress&cs=tinysrgb&w=1200
+
+4) sapphire-ring — Pexels 1454175
+   https://images.pexels.com/photos/1454175/pexels-photo-1454175.jpeg?auto=compress&cs=tinysrgb&w=1200
+
+5) gemstone-bracelet — Unsplash (Nandini Khandelwal)
+   https://images.unsplash.com/photo-1632816307542-6a707d8a1c3c?auto=format&fit=crop&w=1200&q=82
+
+6) diamond-earrings — Unsplash (One Carat Store)
+   https://images.unsplash.com/photo-1724937721110-862ebf74ed7a?auto=format&fit=crop&w=1200&q=82
+
+7) statement-necklace — Unsplash (Zahraa Hassan)
+   https://images.unsplash.com/photo-1771626965799-a6ec8b44aede?auto=format&fit=crop&w=1200&q=82
+
+8) emerald-ring — Pexels 248077
+   https://images.pexels.com/photos/248077/pexels-photo-248077.jpeg?auto=compress&cs=tinysrgb&w=1200

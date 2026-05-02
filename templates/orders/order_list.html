@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load commerce_extras %}
+{% block title %}My orders | Lux Gems{% endblock %}
+{% block content %}
+<section class="lx-section">
+  <h1 class="lx-section-title">Your orders</h1>
+  <div class="lx-table-wrap">
+    <table class="lx-table">
+      <thead><tr><th>Order</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody>
+        {% for o in orders %}
+          <tr>
+            <td><a href="{% url 'orders:detail' o.pk %}">#{{ o.pk }}</a></td>
+            <td>{{ o.total|pkr }}</td>
+            <td>{{ o.get_status_display }}</td>
+            <td class="lx-meta">{{ o.created_at|date:"M j, Y" }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="4" class="lx-meta">No orders yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

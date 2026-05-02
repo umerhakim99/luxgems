@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Order #{{ order.pk }} status | Lux Gems{% endblock %}
+{% block content %}
+<section class="lx-section" style="max-width:480px;">
+  <h1 class="lx-section-title">Update order #{{ order.pk }}</h1>
+  <p class="lx-meta">Customer: {{ order.user.email|default:order.user.username }} · Current: {{ order.get_status_display }}</p>
+  <form method="post" class="lx-form-stack" style="margin-top:1.5rem;">
+    {% csrf_token %}
+    <label>Status {{ form.status }}</label>
+    <button type="submit" class="lx-btn lx-btn-primary">Save</button>
+    <a class="lx-btn lx-btn-ghost" href="{% url 'orders:admin_order_list' %}">Cancel</a>
+  </form>
+</section>
+{% endblock %}

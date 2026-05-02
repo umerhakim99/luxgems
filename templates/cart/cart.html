@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load commerce_extras %}
+{% block title %}Your bag | Lux Gems{% endblock %}
+{% block content %}
+<section class="lx-section">
+  <h1 class="lx-section-title">Collection bag</h1>
+
+  <div class="lx-split" style="margin-bottom:2.5rem;align-items:start;">
+    <div class="lx-card" style="padding:1.35rem;">
+      <h2 class="lx-section-title" style="font-size:1.15rem;margin-top:0;">Delivery address</h2>
+      <p class="lx-meta" style="margin-top:0;">Used for checkout and COD delivery. Keep province, city, and postal code consistent.</p>
+      <form method="post" class="lx-form-stack" style="max-width:100%;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="save_address">
+        {% for field in address_form %}
+          <label>{{ field.label }}{% if field.errors %}<span style="color:#f5a8a8;">{{ field.errors }}</span>{% endif %}{{ field }}</label>
+        {% endfor %}
+        {% if address_form.non_field_errors %}
+          <ul class="lx-messages">{% for e in address_form.non_field_errors %}<li class="lx-msg-error">{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+        <button type="submit" class="lx-btn lx-btn-primary">Save address</button>
+      </form>
+    </div>
+  </div>
+
+  {% with lines=cart.items.all %}
+    {% if lines %}
+      <div class="lx-table-wrap">
+        <table class="lx-table">
+          <thead>
+            <tr><th>Product</th><th>Price (PKR)</th><th>Qty</th><th>Line</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for line in lines %}
+              <tr>
+                <td><a href="{{ line.product.get_absolute_url }}">{{ line.product.name }}</a></td>
+                <td>{{ line.product.price|pkr }}</td>
+                <td>
+                  <form method="post" action="{% url 'cart:update_line' line.id %}" style="display:flex;gap:0.35rem;align-items:center;">
+                    {% csrf_token %}
+                    <input class="lx-input" type="number" name="quantity" value="{{ line.quantity }}" min="1" max="{{ line.product.stock }}" style="width:4rem;">
+                    <button type="submit" class="lx-btn lx-btn-ghost" style="padding:0.35rem 0.6rem;font-size:0.7rem;">Update</button>
+                  </form>
+                </td>
+                <td>{{ line.line_total|pkr }}</td>
+                <td>
+                  <form method="post" action="{% url 'cart:remove_line' line.id %}" onsubmit="return confirm('Remove this item?');">
+                    {% csrf_token %}
+                    <button type="submit" class="lx-btn lx-btn-ghost" style="padding:0.35rem 0.6rem;font-size:0.7rem;">Remove</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p class="lx-price" style="margin-top:1.5rem;">Subtotal: {{ cart.subtotal|pkr }}</p>
+      <div class="lx-stack-sm" style="margin-top:1.5rem;">
+        <a class="lx-btn lx-btn-primary" href="{% url 'orders:checkout' %}">Checkout (COD)</a>
+        <a class="lx-btn lx-btn-ghost" href="{% url 'catalog:showroom' %}">Continue shopping</a>
+      </div>
+    {% else %}
+      <p class="lx-meta">Your bag is empty. Visit the <a href="{% url 'catalog:showroom' %}">showroom</a>.</p>
+    {% endif %}
+  {% endwith %}
+</section>
+{% endblock %}

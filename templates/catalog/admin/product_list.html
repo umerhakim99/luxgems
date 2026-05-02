@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load commerce_extras %}
+{% block title %}Admin products | Lux Gems{% endblock %}
+{% block content %}
+<section class="lx-section">
+  <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+    <h1 class="lx-section-title" style="margin:0;">Product catalog</h1>
+    <a class="lx-btn lx-btn-primary" href="{% url 'catalog:admin_product_create' %}">New product</a>
+  </div>
+  <form method="get" class="lx-toolbar" style="margin-bottom:1rem;">
+    <label>Search
+      <input class="lx-input" type="search" name="q" value="{{ request.GET.q }}">
+    </label>
+    <button type="submit" class="lx-btn lx-btn-primary">Search</button>
+  </form>
+  <div class="lx-table-wrap">
+    <table class="lx-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th>Active</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in page_obj %}
+          <tr>
+            <td>{{ p.name }}</td>
+            <td>{{ p.category.name }}</td>
+            <td>{{ p.price|pkr }}</td>
+            <td>{{ p.stock }}</td>
+            <td>{% if p.is_active %}Yes{% else %}No{% endif %}</td>
+            <td>
+              <a href="{% url 'catalog:admin_product_edit' p.pk %}">Edit</a>
+              ·
+              <a href="{% url 'catalog:admin_product_delete' p.pk %}">Delete</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6" class="lx-meta">No products.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="lx-pagination">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}">← Prev</a>
+      {% endif %}
+      <span class="active">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}">Next →</a>
+      {% endif %}
+    </nav>
+  {% endif %}
+</section>
+{% endblock %}
