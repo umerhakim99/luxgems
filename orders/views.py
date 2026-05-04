@@ -147,9 +147,18 @@ def admin_order_list(request):
 def admin_order_update_status(request, pk):
     order = get_object_or_404(Order, pk=pk)
     if request.method == "POST":
+        old_status = order.status
         form = OrderStatusForm(request.POST, instance=order)
         if form.is_valid():
+            new_status = form.cleaned_data['status']
+            print(f"DEBUG: old={old_status}, new={new_status}, email={order.shipping_email}")
             form.save()
+            if old_status != new_status:
+                print("DEBUG: Sending email...")
+                _send_status_email(order)
+                print("DEBUG: Email sent!")
+            else:
+                print("DEBUG: Status did not change, no email sent")
             messages.success(request, "Order status updated.")
             return redirect("orders:admin_order_list")
     else:
@@ -158,4 +167,34 @@ def admin_order_update_status(request, pk):
         request,
         "orders/admin_order_status.html",
         {"form": form, "order": order},
+    )
+
+
+
+def _send_status_email(order):
+    from django.core.mail import send_mail
+    status_messages = {
+        "confirmed": "Your order has been confirmed and is being prepared.",
+        "processing": "Your order is currently being processed.",
+        "shipped": "Great news! Your order has been shipped and is on its way.",
+        "delivered": "Your order has been delivered. Thank you for shopping with Lux Gems!",
+        "cancelled": "Unfortunately your order has been cancelled. Please contact us for more details.",
+        "pending": "Your order is pending review.",
+    }
+    status_label = order.get_status_display()
+    message = status_messages.get(order.status, f"Your order status has been updated to {status_label}.")
+    send_mail(
+        subject=f"Lux Gems — Order #{order.pk} Update: {status_label}",
+        message=(
+            f"Dear {order.shipping_name},\n\n"
+            f"{message}\n\n"
+            f"Order #{order.pk}\n"
+            f"Status: {status_label}\n"
+            f"Total: Rs. {order.total}\n\n"
+            f"Thank you for choosing Lux Gems.\n"
+            f"For any queries, reply to this email or contact us on WhatsApp."
+        ),
+        from_email=None,
+        recipient_list=[order.shipping_email],
+        fail_silently=False,
     )

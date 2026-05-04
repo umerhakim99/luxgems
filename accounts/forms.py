@@ -73,12 +73,11 @@ class RegisterForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         if "username" in self.fields:
             del self.fields["username"]
-        cities = sorted({c for cities in CITIES_BY_PROVINCE.values() for c in cities})
-        self.fields["city"] = forms.ChoiceField(
+        self.fields["city"] = forms.CharField(
             label="City",
+            max_length=100,
             required=True,
-            choices=[("", "Select city")] + [(c, c) for c in cities],
-            widget=forms.Select(attrs={"class": "lx-select"}),
+            widget=forms.TextInput(attrs={"class": "lx-input", "placeholder": "Enter your city"}),
         )
         for name, field in self.fields.items():
             if name in ("password1", "password2", "street_address", "city", "province"):
@@ -140,10 +139,8 @@ class DeliveryAddressForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        cities = sorted({c for cities in CITIES_BY_PROVINCE.values() for c in cities})
-        self.fields["city"].widget = forms.Select(
-            attrs={"class": "lx-select"},
-            choices=[("", "Select city")] + [(c, c) for c in cities],
+        self.fields["city"].widget = forms.TextInput(
+            attrs={"class": "lx-input", "placeholder": "Enter your city"}
         )
         self.fields["province"].choices = [("", "Select province")] + list(PROVINCE_CHOICES)
 

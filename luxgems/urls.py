@@ -3,6 +3,11 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from luxgems.admin_site import LuxAdminSite, EmailAdminAuthForm
+
+admin.site.__class__ = LuxAdminSite
+admin.site.login_form = EmailAdminAuthForm
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("api.urls")),

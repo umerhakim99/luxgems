@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ValidationError
 
-from accounts.pakistan_address import CITIES_BY_PROVINCE, PROVINCE_CHOICES, validate_pakistan_address
+from accounts.pakistan_address import PROVINCE_CHOICES, validate_pakistan_address
 
 from .models import Order
 
@@ -13,7 +13,11 @@ class CheckoutForm(forms.Form):
         max_length=32, required=True, widget=forms.TextInput(attrs={"class": "lx-input"})
     )
     province = forms.ChoiceField(choices=[("", "Select province")] + list(PROVINCE_CHOICES), required=True)
-    city = forms.ChoiceField(required=True, widget=forms.Select(attrs={"class": "lx-select"}))
+    city = forms.CharField(
+        max_length=100,
+        required=True,
+        widget=forms.TextInput(attrs={"class": "lx-input", "placeholder": "Enter your city"})
+    )
     street_address = forms.CharField(
         label="Street address",
         widget=forms.Textarea(attrs={"rows": 3, "class": "lx-textarea"}),
@@ -25,11 +29,7 @@ class CheckoutForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        from accounts.pakistan_address import CITIES_BY_PROVINCE
-
         super().__init__(*args, **kwargs)
-        cities = sorted({c for cities in CITIES_BY_PROVINCE.values() for c in cities})
-        self.fields["city"].choices = [("", "Select city")] + [(c, c) for c in cities]
         self.fields["province"].widget.attrs.setdefault("class", "lx-select")
 
     def clean(self):
